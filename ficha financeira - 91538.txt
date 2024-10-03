@@ -1,0 +1,272 @@
+SELECT
+HFP.NUM_MATRICULA,
+                       PF.NOM_PESSOA_FISICA AS NOME,
+                       PF.NUM_CPF AS CPF,
+                       --RF.DAT_NOMEA AS DAT_ADMISSAO,
+                       RF.DAT_INI_EXERC AS DAT_ADMISSAO, -- alterado #79083  20/06/2022
+
+                       (SELECT distinct FG1.COD_CARGO FROM TB_HFOLHA_PAGAMENTO FG1 WHERE
+                        FG1.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC AND FG1.PER_PROCESSO =
+                        (select distinct max(f.per_processo) from tb_hfolha_pagamento f where TO_CHAR(HFPD.PER_PROCESSO, 'YYYY') = TO_CHAR(f.PER_PROCESSO, 'YYYY') and
+                        FG1.COD_IDE_REL_FUNC = f.cod_ide_rel_func and f.tip_processo in ('N')) and fg1.tip_processo in ('N')) as COD_CARGO,
+
+                       (SELECT distinct FG1.NOM_CARGO FROM TB_HFOLHA_PAGAMENTO FG1 WHERE
+                        FG1.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC AND FG1.PER_PROCESSO =
+                        (select distinct max(f.per_processo) from tb_hfolha_pagamento f where TO_CHAR(HFPD.PER_PROCESSO, 'YYYY') = TO_CHAR(f.PER_PROCESSO, 'YYYY') and
+                        FG1.COD_IDE_REL_FUNC = f.cod_ide_rel_func and f.tip_processo in ('N')) and fg1.tip_processo in ('N'))  as NOM_CARGO,
+
+                       HFPD.COD_FCRUBRICA,
+                       HFPD.FLG_NATUREZA AS FLG_NATUREZA,
+                       NVL((SELECT R.NOM_RUBRICA
+                             FROM TB_RUBRICAS R
+                            WHERE R.COD_INS = 1
+                              AND R.COD_ENTIDADE = HFPD.COD_ENTIDADE
+                              AND R.COD_RUBRICA = HFPD.COD_FCRUBRICA),
+                           (SELECT CP.NOM_CONCEITO
+                              FROM TB_CONCEITOS_PAG CP
+                             WHERE CP.COD_INS = 1
+                               AND CP.COD_ENTIDADE = HFPD.COD_ENTIDADE
+                               AND CP.COD_CONCEITO =
+                                   TRUNC(HFPD.COD_FCRUBRICA / 100))) AS DES_RUBRICA,
+                       HFPD.VAL_RUBRICA,
+										   (  SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '01'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+												 AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFPD.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFPD.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFPD.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFPD.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFPD.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFPD.COD_IDE_REL_FUNC
+													AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+												 										 
+											 ) JANEIRO,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+												 WHERE 
+												 TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '02'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+												 AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+												 AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+													AND HFPDI.COD_INS = HFPD.COD_INS
+													AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+												 AND ROWNUM = 1
+                       ) FEVEREIRO ,
+                         ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '03'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+													AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) MARCO ,
+											 ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '04'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) ABRIL ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '05'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) MAIO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '06'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) JUNHO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '07'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) JULHO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '08'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) AGOSTO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '09'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) SETEMBRO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '10'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) OUTUBRO ,
+											   ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '11'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) NOVEMBRO ,
+											  ( SELECT DECODE(HFPDI.FLG_NATUREZA, 'C', HFPDI.VAL_RUBRICA, HFPDI.VAL_RUBRICA * -1)
+                         FROM  FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPDI
+                         WHERE 
+                         TO_CHAR(HFPDI.PER_PROCESSO,'MM') = '12'
+                         AND TO_CHAR(HFPDI.PER_PROCESSO,'YYYY') = TO_CHAR(HFP.PER_PROCESSO,'YYYY')
+                         AND HFPDI.COD_IDE_CLI = HFPD.COD_IDE_CLI
+                         AND HFPDI.PER_PROCESSO = HFP.PER_PROCESSO
+                          AND HFPDI.TIP_PROCESSO = HFP.TIP_PROCESSO
+                          AND HFPDI.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                          AND HFPDI.COD_IDE_CLI = HFP.COD_IDE_CLI
+                          AND HFPDI.COD_ENTIDADE = HFP.COD_ENTIDADE
+                          AND HFPDI.NUM_MATRICULA = HFP.NUM_MATRICULA
+                          AND HFPDI.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                          AND HFPDI.COD_INS = HFPD.COD_INS
+                          AND HFPDI.VAL_RUBRICA = HFPD.VAL_RUBRICA
+                         AND ROWNUM = 1
+                       ) DEZEMBRO ,
+											 
+											 
+                       TO_CHAR(HFPD.PER_PROCESSO, 'YYYY') AS ANO_REF,
+                  CASE WHEN trunc(HFPD.COD_FCRUBRICA/100) IN (37,76,112,113,529,544,580,581,582,583,593,691,698) and hfpd.tip_processo = 'T' THEN '13' /* WHEN HFP.TIP_PROCESSO = 'T' THEN '13' */ /*CORRETO USAR AGRUPAMENTO DE RUBRICA 13 */
+                  ELSE
+                       TO_CHAR(HFP.PER_PROCESSO,'MM') END MES_REF
+                  FROM FOLHA_PAR.TB_HFOLHA_PAGAMENTO     HFP,
+                       FOLHA_PAR.TB_HFOLHA_PAGAMENTO_DET HFPD,
+                       FOLHA_PAR.TB_RELACAO_FUNCIONAL    RF,
+                       FOLHA_PAR.TB_PESSOA_FISICA        PF
+                 WHERE HFP.COD_INS      = 1
+                   AND HFPD.COD_INS = HFP.COD_INS
+                   AND HFPD.PER_PROCESSO = HFP.PER_PROCESSO
+                   AND HFPD.TIP_PROCESSO = HFP.TIP_PROCESSO
+                   AND HFPD.SEQ_PAGAMENTO = HFP.SEQ_PAGAMENTO
+                   AND HFPD.COD_IDE_CLI = HFP.COD_IDE_CLI
+                   AND HFPD.COD_ENTIDADE = HFP.COD_ENTIDADE
+                   AND HFPD.NUM_MATRICULA = HFP.NUM_MATRICULA
+                   AND HFPD.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                   AND RF.COD_INS = HFP.COD_INS
+                   AND RF.COD_IDE_CLI = HFP.COD_IDE_CLI
+                   AND RF.NUM_MATRICULA = HFP.NUM_MATRICULA
+                   AND RF.COD_IDE_REL_FUNC = HFP.COD_IDE_REL_FUNC
+                   AND PF.COD_INS = 1
+                   AND PF.COD_IDE_CLI = RF.COD_IDE_CLI
+                   AND NOT EXISTS
+                 (SELECT 1
+                          FROM TB_IMPRESAO_RUB IMP
+                         WHERE IMP.COD_INS = 1
+                           AND IMP.COD_RUBRICA = HFPD.COD_FCRUBRICA
+                           AND IMP.COD_ENTIDADE = HFPD.COD_ENTIDADE
+                           AND IMP.COD_TIPO_PROCESSO = HFPD.TIP_PROCESSO
+                           AND IMP.FLG_IMPRIME = 'N')
+									AND  HFP.NUM_MATRICULA = 51	
+									--AND TO_CHAR(HFP.PER_PROCESSO,'MM') = '07'
+									AND TO_CHAR(HFP.PER_PROCESSO,'YYYY') = '2020' ;		 
