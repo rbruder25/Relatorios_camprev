@@ -1,13 +1,6 @@
-/*
-
 INSERT INTO reltabela  
   SELECT MAX(COD_TABELA)+1,'VW_EXTRATO_PREV','Relatório de Extrato Previdenciario',MAX(COD_TABELA)+1 from reltabela
- 
-INSERT INTO reltabela  
-  SELECT MAX(COD_TABELA)+1,'VW_EXTRATO_PREV_RGPS','Relatório de Extrato Previdenciario RGPS',MAX(COD_TABELA)+1 from reltabela
-  
-  
-*/
+
 
 -----------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW VW_EXTRATO_PREV AS
@@ -74,7 +67,7 @@ SELECT HF.PER_PROCESSO, HF.TIP_PROCESSO, HF.COD_IDE_REL_FUNC,--HF.NUM_MATRICULA,
    AND RF.NUM_MATRICULA    = HF.NUM_MATRICULA
    AND RF.COD_IDE_REL_FUNC = HF.COD_IDE_REL_FUNC
    AND HF.TIP_PROCESSO = 'N'
-  --AND HF.PER_PROCESSO between to_date('01/01/2022', 'dd/mm/yyyy') and to_date('01/12/2022', 'dd/mm/yyyy')
+  AND HF.PER_PROCESSO between to_date('01/01/2022', 'dd/mm/yyyy') and to_date('01/12/2022', 'dd/mm/yyyy')
  --   AND HF.NUM_MATRICULA = 47
    AND EXISTS ( SELECT 1 FROM TB_HFOLHA_PAGAMENTO_DET HFD1
                  WHERE HFD1.COD_INS = 1
@@ -86,77 +79,6 @@ SELECT HF.PER_PROCESSO, HF.TIP_PROCESSO, HF.COD_IDE_REL_FUNC,--HF.NUM_MATRICULA,
                    AND HFD1.COD_IDE_REL_FUNC = HF.COD_IDE_REL_FUNC
                    AND HFD1.NUM_MATRICULA = HF.NUM_MATRICULA
                    AND TRUNC (HFD1.COD_FCRUBRICA/100) in (953,954,582,528,529) -- foi adicionado INSS 09/03/2023
-    )
-  ORDER BY PER_PROCESSO
-;
---------------------------------------------------------------------------------------
-CREATE OR REPLACE VIEW VW_EXTRATO_PREV_RGPS AS
-SELECT HF.PER_PROCESSO, HF.TIP_PROCESSO, HF.COD_IDE_REL_FUNC,
-       (SELECT F.NOM_PESSOA_FISICA FROM TB_PESSOA_FISICA F WHERE HF.COD_IDE_CLI = F.COD_IDE_CLI) AS NOME,
-       (SELECT C.NOM_CARGO         FROM TB_CARGO C         WHERE RF.COD_CARGO   = C.COD_CARGO)   AS CARGO,
-
-       (SELECT SUM(DECODE(HFD.FLG_NATUREZA, 'C', HFD.VAL_RUBRICA, HFD.VAL_RUBRICA *-1))
-          FROM TB_HFOLHA_PAGAMENTO_DET HFD
-         WHERE HFD.COD_INS = 1
-           AND HFD.TIP_PROCESSO  = HF.TIP_PROCESSO
-           AND HFD.PER_PROCESSO  = HF.PER_PROCESSO
-           AND HFD.NUM_MATRICULA = HF.NUM_MATRICULA
-           AND HFD.COD_FCRUBRICA IN (SELECT CO.COD_FCRUBRICA_COMPOE FROM TB_COMPOE_DET CO
-                                      WHERE CO.COD_FCRUBRICA_COMPOSTA IN (52800,52900)
-                                        AND CO.DAT_FIM_VIG IS NULL
-                                        AND CO.COD_FCRUBRICA_COMPOE = HFD.COD_FCRUBRICA
-                                   )
-       )AS BASE_CONTRIBUICAO,
-
-       (SELECT SUM(DECODE(HFD.FLG_NATUREZA, 'D', HFD.VAL_RUBRICA, HFD.VAL_RUBRICA *-1))
-          FROM TB_HFOLHA_PAGAMENTO_DET HFD
-         WHERE HFD.COD_INS = 1
-           AND HFD.TIP_PROCESSO = HF.TIP_PROCESSO
-           AND HFD.PER_PROCESSO = HF.PER_PROCESSO
-           AND HFD.NUM_MATRICULA= HF.NUM_MATRICULA
-           AND HFD.COD_IDE_CLI = HF.COD_IDE_CLI
-           AND TRUNC (HFD.COD_FCRUBRICA/100) in (528,529)
-
-       )AS CONTRIBUICAO_SERVIDOR,
-
-       ROUND(((SELECT SUM(DECODE(HFD.FLG_NATUREZA, 'C', HFD.VAL_RUBRICA, HFD.VAL_RUBRICA *-1))
-          FROM TB_HFOLHA_PAGAMENTO_DET HFD
-         WHERE HFD.COD_INS = 1
-           AND HFD.TIP_PROCESSO  = HF.TIP_PROCESSO
-           AND HFD.PER_PROCESSO  = HF.PER_PROCESSO
-           AND HFD.NUM_MATRICULA = HF.NUM_MATRICULA
-           AND HFD.COD_FCRUBRICA IN (SELECT CO.COD_FCRUBRICA_COMPOE FROM TB_COMPOE_DET CO
-                                      WHERE CO.COD_FCRUBRICA_COMPOSTA IN (52800,52900)
-                                        AND CO.DAT_FIM_VIG IS NULL
-                                        AND CO.COD_FCRUBRICA_COMPOE = HFD.COD_FCRUBRICA
-                                   )
-              )
-           -- INSS patronal = 20% da folha de pagamento + (RAT x FAP)
-           -- Atualmente RAT = 2 e FAP = 0,5
-           -- Resumindo 20% + 1% = 21%
-             )* 21 ) / 100  AS CONTRIBUICAO_PATRONAL
-
-  FROM TB_HFOLHA_PAGAMENTO   HF,
-       TB_RELACAO_FUNCIONAL RF
- WHERE HF.COD_INS = 1
-   AND RF.COD_INS = 1
-   AND RF.COD_IDE_CLI      = HF.COD_IDE_CLI
-   AND RF.COD_ENTIDADE     = HF.COD_ENTIDADE
-   AND RF.NUM_MATRICULA    = HF.NUM_MATRICULA
-   AND RF.COD_IDE_REL_FUNC = HF.COD_IDE_REL_FUNC
-   AND HF.TIP_PROCESSO = 'N'
---   AND HF.PER_PROCESSO between to_date('01/01/2024', 'dd/mm/yyyy') and to_date('01/12/2024', 'dd/mm/yyyy')
---   AND HF.NUM_MATRICULA = 47
-   AND EXISTS ( SELECT 1 FROM TB_HFOLHA_PAGAMENTO_DET HFD1
-                 WHERE HFD1.COD_INS = 1
-                   AND HFD1.TIP_PROCESSO = HF.TIP_PROCESSO
-                   AND HFD1.SEQ_PAGAMENTO = HF.SEQ_PAGAMENTO
-                   AND HFD1.PER_PROCESSO = HF.PER_PROCESSO
-                   AND HFD1.COD_IDE_CLI = HF.COD_IDE_CLI
-                   AND HFD1.COD_ENTIDADE = HF.COD_ENTIDADE
-                   AND HFD1.COD_IDE_REL_FUNC = HF.COD_IDE_REL_FUNC
-                   AND HFD1.NUM_MATRICULA = HF.NUM_MATRICULA
-                   AND TRUNC (HFD1.COD_FCRUBRICA/100) in (528,529)
     )
   ORDER BY PER_PROCESSO
 ;

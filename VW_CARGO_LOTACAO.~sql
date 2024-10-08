@@ -1,38 +1,53 @@
 DECLARE
 BEGIN
-  
- INSERT INTO reltabela
+--  item 17
+ INSERT INTO reltabela 
  SELECT MAX(COD_TABELA)+1,'VW_QTDE_VAGAS_OCUPADAS','Quantidade de vagas existentes e Ocupadas',MAX(COD_TABELA)+1 from reltabela;   
 
+-- item 10
   INSERT INTO reltabela   
   SELECT MAX(COD_TABELA)+1,'VW_CONTROLE_ORGAO_LOTACAO','Quantidade de Vagas existentes e Ocupadas por Lotação',MAX(COD_TABELA)+1 from reltabela;
 
+-- item 9 
   INSERT INTO reltabela  
-  SELECT MAX(COD_TABELA)+1,'VW_AUTORIAL_SERVIDORES','Arquivos e relatórios necessários para utilização em cálculo atuarial.',MAX(COD_TABELA)+1 from reltabela;
- 
+  SELECT MAX(COD_TABELA)+1,'VW_ATUARIAL_SERVIDORES','Arquivos e relatórios necessários para utilização em cálculo atuarial.',MAX(COD_TABELA)+1 from reltabela;
+-- item 9 
  INSERT INTO reltabela  
-  SELECT MAX(COD_TABELA)+1,'VW_AUTORIAL_EXON','Arquivos e relatórios necessários para utilização da XENON.',MAX(COD_TABELA)+1 from reltabela;
-
+  SELECT MAX(COD_TABELA)+1,'VW_ATUARIAL_EXON','Arquivos e relatórios necessários para utilização da XENON.',MAX(COD_TABELA)+1 from reltabela;
+-- item 9
  INSERT INTO reltabela  
-  SELECT MAX(COD_TABELA)+1,'VW_AUTORIAL_DEPENDENTES','Arquivos e relatórios necessários para utilização da Dependentes.',MAX(COD_TABELA)+1 from reltabela;
-
-
+  SELECT MAX(COD_TABELA)+1,'VW_ATUARIAL_DEPENDENTES','Arquivos e relatórios necessários para utilização da Dependentes.',MAX(COD_TABELA)+1 from reltabela;
+-- item 10
  INSERT INTO reltabela  
   SELECT MAX(COD_TABELA)+1,'VW_PROVISIONAMENTO','Arquivos e relatórios de provisionamento.',MAX(COD_TABELA)+1 from reltabela;
-
+-- item 13,
 INSERT INTO reltabela  
   SELECT MAX(COD_TABELA)+1,'VW_SERVIDOR','Arquivos e relatórios de servidor.',MAX(COD_TABELA)+1 from reltabela;
-
+-- item 5
 INSERT INTO reltabela  
   SELECT MAX(COD_TABELA)+1,'VW_EXTRATO_PREV_RPPS','Arquivos e relatórios de EXTRATO RPPS.',MAX(COD_TABELA)+1 from reltabela;
-
+-- item 5
 INSERT INTO reltabela  
   SELECT MAX(COD_TABELA)+1,'VW_EXTRATO_PREV_RGPS_MAT','Arquivos e relatórios de EXTRATO RGPS.',MAX(COD_TABELA)+1 from reltabela;
+ 
+--AtosPessoal_FolhaOrdinaria Audesp -- 13 
+INSERT INTO reltabela  
+  SELECT MAX(COD_TABELA)+1,'VW_PESSOAL_FOLHA_ORDINARIA','Relatório de Passoal folha ordinária',MAX(COD_TABELA)+1 from reltabela
 
+--AtosPessoal_FolhaOrdinaria - Audesp - 13
+INSERT INTO reltabela  
+  SELECT MAX(COD_TABELA)+1,'VW_PESSOAL_FOLHA_ORDINARIA_LINHA','Relatório de Passoal folha ordinária linha',MAX(COD_TABELA)+1 from reltabela
+  
+-- item 4.6
+INSERT INTO reltabela  
+  SELECT MAX(COD_TABELA)+1,'VW_DIAS_AFASTAMENTO','Relatórios de dias afastado',MAX(COD_TABELA)+1 from reltabela;
 
-
+-- item 13
+INSERT INTO reltabela  
+  SELECT MAX(COD_TABELA)+1,'VW_FOLHA_BRUTA_ANUAL','Relatórios Folha Bruta Anual',MAX(COD_TABELA)+1 from reltabela;
 
 END;
+
 
 ----------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +118,7 @@ create or replace view VW_CONTROLE_ORGAO_LOTACAO as
  
  
 -----------------------------------------------------------------------------------------
-create or replace VIEW  VW_AUTORIAL_SERVIDORES AS
+create or replace VIEW  VW_ATUARIAL_SERVIDORES AS
 SELECT * FROM 
 (
 SELECT DISTINCT
@@ -407,10 +422,22 @@ WHERE --F.PER_PROCESSO = '01/12/2023'
   AND EF2.DAT_FIM_EFEITO IS NULL))    
 )
 --------------------------------------------------------------------------------------
-create or replace VIEW  VW_AUTORIAL_EXON AS
-SELECT * FROM 
+create or replace VIEW  VW_ATUARIAL_EXON AS
+SELECT DISTINCT 
+  
+  COD_IDE_CLI,NOME,NU_ANO,NU_MES,CO_IBGE,NO_ENTE,SG_UF,CO_COMP_MASSA,CO_TIPO_FUNDO,
+  NU_CNPJ_ORGAO,NO_ORGAO,CO_PODER,CO_TIPO_PODER,CO_TIPO_POPULACAO,CO_TIPO_CARGO,CO_CRITERIO_ELEGIBILIDADE,
+  ID_SERVIDOR_MATRICULA,ID_SERVIDOR_CPF,ID_SERVIDOR_PIS_PASEP,CO_SEXO_SERVIDOR,CO_EST_CIVIL_SERVIDOR,
+  DT_NASC_SERVIDOR,CO_SITUACAO,DT_SITUACAO,CO_TIPO_VINCULO,DT_ING_SERV_PUB,DT_ING_ENTE,
+  DT_ING_CARREIRA,NO_CARREIRA,DT_ING_CARGO,NO_CARGO,VL_BASE_CALCULO,VL_REMUNERACAO,
+  VL_CONTRIBUICAO,NU_TEMPO_RGPS,NU_TEMPO_RPPS_MUN,NU_TEMPO_RPPS_EST,NU_TEMPO_RPPS_FED,
+  NU_DEPENDENTES,IN_ABONO_PERMANENCIA,DT_INICIO_ABONO,IN_PREV_COMP,VL_TETO_ESPECIFICO,
+  PER_PROCESSO,DAT_FIM_EXERC
+  
+FROM 
 (
-SELECT DISTINCT  
+SELECT DISTINCT
+     
       F.COD_IDE_CLI, F.NOME 
      ,  TO_CHAR(F.PER_PROCESSO, 'YYYY')                                                AS NU_ANO
      , TO_CHAR(F.PER_PROCESSO, 'MM')                                                  AS NU_MES
@@ -546,51 +573,47 @@ FROM TB_HFOLHA_PAGAMENTO F INNER JOIN TB_ENTIDADE            E ON F.COD_ENTIDADE
                                                                   P.COD_IDE_CLI      = EF.COD_IDE_CLI          AND 
                                                                   F.COD_IDE_REL_FUNC = EF.COD_IDE_REL_FUNC 
  WHERE 
- --TO_CHAR(R.DAT_FIM_EXERC, 'YYYY') = '2023' AND    
-    F.TIP_PROCESSO = 'N' 
-  AND F.NUM_MATRICULA  < 90  
- -- AND R.DAT_FIM_EXERC <= '31/12/2023' 
-  and round((((SELECT SUM(FPD.VAL_RUBRICA) FROM TB_HFOLHA_PAGAMENTO_DET FPD 
-                 WHERE F.COD_IDE_REL_FUNC = FPD.COD_IDE_REL_FUNC
-                   AND F.PER_PROCESSO     = FPD.PER_PROCESSO
-                   AND F.TIP_PROCESSO     = FPD.TIP_PROCESSO
-                   AND TRUNC(FPD.COD_FCRUBRICA/100) IN (953))*100)/11),2)  IS NOT NULL      
-  AND R.DAT_FIM_EXERC  =(SELECT MIN(EF1.DAT_FIM_EXERC) FROM
+
+     F.TIP_PROCESSO = 'N' 
+
+    
+   and R.DAT_FIM_EXERC  =(SELECT MIN(EF1.DAT_FIM_EXERC) FROM
   TB_RELACAO_FUNCIONAL EF1      WHERE EF.COD_IDE_REL_FUNC = EF1.COD_IDE_REL_FUNC)   
-                        
-  
-  AND PER_PROCESSO IN 
+  AND R.NUM_MATRICULA  < 90
+  AND R.COD_REGIME_JUR = 1 
+  AND R.TIP_PROVIMENTO = 2
+  AND R.COD_VINCULO    = 1
+  AND R.COD_CARGO      < 500
+
+  AND F.PER_PROCESSO||F.COD_IDE_CLI||R.DAT_FIM_EXERC IN 
   (
   SELECT PER_PROCESSO FROM 
-(
- SELECT    
-   MAX(PER_PROCESSO) PER_PROCESSO,NOME                                      --        AS NU_MES     
- FROM TB_HFOLHA_PAGAMENTO Z INNER JOIN TB_ENTIDADE            E ON Z.COD_ENTIDADE     = E.COD_ENTIDADE
-                         INNER JOIN TB_RELACAO_FUNCIONAL   K ON Z.COD_IDE_REL_FUNC = K.COD_IDE_REL_FUNC
-                           LEFT  JOIN TB_EVOLUCAO_FUNCIONAL  Y ON Z.COD_IDE_CLI      = Y.COD_IDE_CLI          AND
+(   
+   SELECT    
+   MAX(Z.PER_PROCESSO)|| K.COD_IDE_CLI||DAT_FIM_EXERC PER_PROCESSO, K.COD_IDE_CLI,DAT_FIM_EXERC                                      --        AS NU_MES     
+   FROM TB_HFOLHA_PAGAMENTO Z INNER JOIN TB_ENTIDADE            E ON Z.COD_ENTIDADE     = E.COD_ENTIDADE
+                            INNER JOIN TB_RELACAO_FUNCIONAL   K ON Z.COD_IDE_REL_FUNC = K.COD_IDE_REL_FUNC
+                            LEFT  JOIN TB_EVOLUCAO_FUNCIONAL  Y ON Z.COD_IDE_CLI      = Y.COD_IDE_CLI          AND
                                                                   Z.COD_IDE_CLI      = Y.COD_IDE_CLI          AND 
                                                                   Z.COD_IDE_REL_FUNC = Y.COD_IDE_REL_FUNC 
+ 
            
-WHERE
-  TO_CHAR(K.DAT_FIM_EXERC, 'YYYY') =  TO_CHAR(R.DAT_FIM_EXERC, 'YYYY') AND --'2023'--TO_CHAR(R.DAT_FIM_EXERC, 'YYYY') AND
-   
+WHERE  
    Z.TIP_PROCESSO = 'N' 
    AND Z.NUM_MATRICULA  < 90
    AND K.COD_REGIME_JUR = 1 
    AND K.TIP_PROVIMENTO = 2
    AND K.COD_VINCULO    = 1
    AND K.COD_CARGO      < 500
+   AND Z.COD_IDE_CLI    = F.COD_IDE_CLI
+   AND DAT_FIM_EXERC    IS NOT NULL 
 
-  --AND R.DAT_FIM_EXERC <= '31/12/2023'    
-   AND K.DAT_FIM_EXERC  = (SELECT MIN(K.DAT_FIM_EXERC) FROM
-                             TB_EVOLUCAO_FUNCIONAL W WHERE Y.COD_IDE_REL_FUNC = W.COD_IDE_REL_FUNC )
-                  GROUP BY NOME           
-   )))
-   --WHERE NU_ANO = 2023
-  
-
+   GROUP BY K.COD_IDE_CLI,DAT_FIM_EXERC 
+    ))) 
+   WHERE  VL_BASE_CALCULO IS NOT NULL 
+   ORDER BY NOME, NU_MES 
 ------------------------------------------------------------------
-CREATE OR REPLACE VIEW VW_AUTORIAL_DEPENDENTES AS
+CREATE OR REPLACE VIEW VW_ATUARIAL_DEPENDENTES AS
 SELECT DISTINCT
        TO_CHAR(F.PER_PROCESSO, 'YYYY')                                                AS NU_ANO
      , TO_CHAR(F.PER_PROCESSO, 'MM')                                                  AS NU_MES
@@ -1229,7 +1252,7 @@ order by NOME_SERVIDOR
 ;
 -----------------------------------------------------------------------------
 CREATE OR REPLACE VIEW VW_EXTRATO_PREV_RPPS AS
-SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, HF.NUM_MATRICULA,
+SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, TO_CHAR(HF.PER_PROCESSO,'MM') MES,HF.NUM_MATRICULA,
        (SELECT F.NOM_PESSOA_FISICA FROM TB_PESSOA_FISICA F WHERE HF.COD_IDE_CLI = F.COD_IDE_CLI) AS NOME,
        (SELECT C.NOM_CARGO         FROM TB_CARGO C         WHERE RF.COD_CARGO   = C.COD_CARGO)   AS CARGO,
 
@@ -1305,11 +1328,11 @@ SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, HF.NUM_MATRICULA,
                    AND HFD1.NUM_MATRICULA = HF.NUM_MATRICULA
                    AND TRUNC (HFD1.COD_FCRUBRICA/100) in (953,954,582) -- foi adicionado INSS 09/03/2023
     )
-  ORDER BY PER_PROCESSO
+  ORDER BY PER_PROCESSO,MES
 ;
 -------------------------------------------------------------------------------------
 CREATE OR REPLACE VIEW VW_EXTRATO_PREV_RGPS_MAT AS
-SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, HF.NUM_MATRICULA,
+SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, TO_CHAR(HF.PER_PROCESSO,'MM') MES ,HF.NUM_MATRICULA,
        (SELECT F.NOM_PESSOA_FISICA FROM TB_PESSOA_FISICA F WHERE HF.COD_IDE_CLI = F.COD_IDE_CLI) AS NOME,
        (SELECT C.NOM_CARGO         FROM TB_CARGO C         WHERE RF.COD_CARGO   = C.COD_CARGO)   AS CARGO,
 
@@ -1376,6 +1399,819 @@ SELECT TO_CHAR(HF.PER_PROCESSO,'YYYY') PER_PROCESSO, HF.NUM_MATRICULA,
                    AND HFD1.NUM_MATRICULA = HF.NUM_MATRICULA
                    AND TRUNC (HFD1.COD_FCRUBRICA/100) in (528,529)
     )
-  ORDER BY PER_PROCESSO
+  ORDER BY PER_PROCESSO,MES
 ;
+------------------------------------------------------------------------------
+create or replace VW_PESSOAL_FOLHA_ORDINARIA AS 
+SELECT
+        A.PER_PROCESSO
+       ,A.COD_ENTIDADE
+       ,B.NUM_CPF
+       ,A.COD_IDE_CLI
+       ,A.NOME                             AS NOM_BEN
+       ,A.COD_CARGO
+       ,TO_CHAR(A.PER_PROCESSO,'YYYY')     AS ANO_EXERCIO
+       ,TO_CHAR(A.PER_PROCESSO,'MM')       AS MES_EXERCIO
+       ,TO_CHAR(B.DAT_NASC,'DD/MM/YYYY')   AS DAT_NASC
+       ,REPLACE(A.TOT_CRED,',','.')        AS TOT_CRED
+       ,REPLACE(A.TOT_DEB,',','.')         AS TOT_DEB
+       ,REPLACE(A.VAL_LIQUIDO,',','.')     AS VAL_LIQUIDO
+       , NVL((SELECT T3.DES_DESCRICAO
+              FROM TB_CODIGO T3
+             WHERE T3.COD_INS = 0
+               AND T3.COD_NUM = 2015
+               AND T3.COD_PAR = E.COD_PARENTESCO),
+            '-')                  AS NOM_PARENTESCO
+       ,E.COD_PARENTESCO          AS COD_PARENTESCO
+       ,B.COD_SEXO
+       ,FNC_DEPARA_NOME(1,'e.COD_PARENTESCO-L.69',E.COD_PARENTESCO) AS QUALIFICACAO_PENSIONISTA 
+       ,A.PER_PROCESSO
+
+   FROM TB_HFOLHA_PAGAMENTO      A, 
+        TB_PESSOA_FISICA         B,
+        TB_DEPENDENTE            E
+  WHERE A.COD_ENTIDADE         =  A.COD_ENTIDADE
+    AND A.PER_PROCESSO         = '01/08/2024'
+    AND A.TIP_PROCESSO         = 'N' 
+    AND A.COD_ENTIDADE         = '1' 
+    AND A.COD_IDE_CLI          = B.COD_IDE_CLI
+    AND A.COD_INS              = E.COD_INS          (+)
+    AND A.COD_IDE_CLI          = E.COD_IDE_CLI_DEP  (+)
+    AND A.NUM_GRP              <> 3
+    AND A.TOT_CRED             != 0
+    AND A.TOT_DEB              != 0
+    ORDER BY B.NOM_PESSOA_FISICA;
+    
+------------------------------------------------------------------------------------
+--AtosPessoal_FolhaOrdinaria_linha
+create or replace VW_PESSOAL_FOLHA_ORDINARIA_LINHA AS 
+   SELECT 
+
+          REPLACE(SUM(TO_NUMBER(DECODE(D1.FLG_NATUREZA, 'C',VAL_RUBRICA, NULL))),',','.')   AS PROVENTO
+         ,REPLACE(SUM(TO_NUMBER(DECODE(D1.FLG_NATUREZA, 'D', VAL_RUBRICA, NULL))),',','.')  AS DESCONTO
+         ,DECODE(R1.TIP_EVENTO,'N','2','1')                                                 AS NATUREZA
+         ,DECODE(D1.FLG_NATUREZA, 'D' , '1' , '2')                                          AS ESPECIE
+         ,R1.COD_CONCEITO                                                                   AS RUBRICAS
+         ,R1.COD_VERBA                                                                      AS TIPO_AUDESP
+         ,FNC_DEPARA_NOME(V_AUDESP,'rf.cod_vinculo-L.116',RF.COD_VINCULO) AS CARGO_POLITICO 
+
+
+
+         ,FNC_DEPARA_NOME(V_AUDESP,'rf.cod_sit_prev-L.121',RF.COD_SIT_PREV) AS COD_SITUACAO 
+
+
+         ,FNC_DEPARA_NOME(V_AUDESP,'rf.cod_regime_jur-L.128',RF.COD_REGIME_JUR) AS ESTAGIARIO 
+
+
+
+         ,FNC_DEPARA_NOME(V_AUDESP,'rf.cod_regime_jur-L.133',RF.COD_REGIME_JUR) AS COD_REGIME_JURIDICO
+
+
+
+    FROM TB_HFOLHA_PAGAMENTO_DET         D1,
+         TB_HFOLHA_PAGAMENTO             F1,
+         TB_RUBRICA_VERBA_AUDESP         R1,
+         TB_PESSOA_FISICA                PF,
+         TB_RELACAO_FUNCIONAL RF
+   WHERE D1.COD_INS              = 1
+     AND D1.PER_PROCESSO         = P_PERPROCESSO
+     AND D1.TIP_PROCESSO         = 'N'
+     AND D1.SEQ_PAGAMENTO        = 1
+     AND D1.COD_IDE_CLI          = PF.COD_IDE_CLI
+     AND PF.NUM_CPF              = P_NUM_CPF
+     AND D1.COD_INS              = F1.COD_INS
+     AND D1.PER_PROCESSO         = F1.PER_PROCESSO
+     AND D1.TIP_PROCESSO         = F1.TIP_PROCESSO
+     AND D1.SEQ_PAGAMENTO        = F1.SEQ_PAGAMENTO
+     AND D1.COD_IDE_CLI          = F1.COD_IDE_CLI
+     AND R1.COD_INS              = D1.COD_INS
+     AND D1.TIP_PROCESSO         = 'N'
+     AND R1.COD_ENTIDADE         = F1.COD_ENTIDADE
+     AND R1.COD_RUBRICA          = D1.COD_FCRUBRICA
+
+     AND RF.COD_IDE_CLI          = D1.COD_IDE_CLI
+     AND RF.COD_IDE_CLI          = F1.COD_IDE_CLI     
+     AND RF.COD_IDE_CLI          = PF.COD_IDE_CLI      
+     AND F1.NUM_GRP              <> 3
+
+
+    AND RF.COD_ENTIDADE          = D1.COD_ENTIDADE
+    AND RF.NUM_MATRICULA         = D1.NUM_MATRICULA
+    AND RF.COD_IDE_REL_FUNC      = D1.COD_IDE_REL_FUNC
+
+    AND D1.COD_ENTIDADE          = F1.COD_ENTIDADE
+    AND D1.NUM_MATRICULA         = F1.NUM_MATRICULA
+    AND D1.COD_IDE_REL_FUNC      = F1.COD_IDE_REL_FUNC
+
+GROUP BY  DECODE(R1.TIP_EVENTO,'N','2','1')
+         ,DECODE(D1.FLG_NATUREZA, 'D' , '1' , '2')
+         ,R1.COD_VERBA
+         ,R1.COD_VERBA
+         ,R1.COD_CONCEITO
+         ,RF.COD_VINCULO
+         ,RF.COD_SIT_PREV
+         ,RF.COD_REGIME_JUR;
+ -------------------------------------------------------------------------------   
+ -- Carlos     
+create or replace view VW_DIAS_AFASTAMENTO AS
+SELECT *
+        FROM (SELECT MATRICULA,
+                     PF.NOM_PESSOA_FISICA AS SERVIDOR,
+                     DATA_INICIO,
+                     DATA_FIM,
+                     T.QTD_DIAS AS QTD_DIAS_AFAST,
+                     (SELECT SUM(QTD_DIAS_ACUMULADO)
+                        FROM (SELECT ((F2.DAT_RET_PREV - F2.DAT_INI_AFAST) + 1) AS QTD_DIAS_ACUMULADO,
+                                     F2.NUM_MATRICULA AS MATRICULA
+                                FROM TB_AFASTAMENTO F2, TB_PARAM_MOTIVO_AFAST F3
+                               WHERE TRUNC(SYSDATE - 60) <= TRUNC(F2.DAT_INI_AFAST)
+                                 AND F3.COD_MOT_AFAST = F2.COD_MOT_AFAST
+                                 AND F2.COD_MOT_AFAST in (select cod_mot_afast  from tb_rel_mot_afast_grupo r where r.id_grupo = 15)
+                              ) A
+                       WHERE A.MATRICULA = T.MATRICULA                    
+                       GROUP BY matricula) AS QTD_DIAS_ACUMULADO,
+                     (SELECT ORG.NOM_ORGAO
+                        FROM TB_LOTACAO LO, TB_ORGAO ORG
+                       WHERE LO.COD_INS = 1
+                         AND LO.NUM_MATRICULA = T.MATRICULA
+                         AND LO.DAT_FIM IS NULL
+                         AND ORG.COD_INS = 1
+                         AND ORG.COD_ENTIDADE = LO.COD_ENTIDADE
+                         AND ORG.COD_ORGAO = LO.COD_ORGAO) AS LOTACAO
+                FROM (SELECT ((F2.DAT_RET_PREV - F2.DAT_INI_AFAST) + 1) AS QTD_DIAS,
+                             F2.DAT_INI_AFAST AS DATA_INICIO,
+                             F2.DAT_RET_PREV AS DATA_FIM,
+                             F2.NUM_MATRICULA AS MATRICULA,
+                             F2.COD_IDE_CLI AS COD_IDE_CLI
+                        FROM TB_AFASTAMENTO F2, TB_PARAM_MOTIVO_AFAST F3                        
+                       WHERE F3.COD_MOT_AFAST = F2.COD_MOT_AFAST
+                         AND F2.COD_MOT_AFAST in (select cod_mot_afast  from tb_rel_mot_afast_grupo r where r.id_grupo = 15) 
+                      ) T
+               INNER JOIN TB_PESSOA_FISICA PF
+                  ON T.COD_IDE_CLI = PF.COD_IDE_CLI
+               GROUP BY MATRICULA,
+                        DATA_INICIO,
+                        DATA_FIM,
+                        PF.NOM_PESSOA_FISICA,
+                        T.QTD_DIAS
+               ORDER BY TO_NUMBER(MATRICULA)               
+               )
+ 
+-------------------------------------------------------------------------------------------------
+CREATE OR REPLACE  FUNCTION FNC_CALC_CONTRIB         (P_COD_INS          NUMBER
+                                    ,P_COD_IDE_CLI      VARCHAR2
+                                    ,P_COD_ENTIDADE     NUMBER
+                                    ,P_NUM_MATRICULA    VARCHAR2
+                                    ,P_COD_IDE_REL_FUNC NUMBER
+                                    ,P_PER_PROCESSO     DATE
+                                    ,P_TIP_PROCESSO     VARCHAR2
+                                    ,P_SEQ_PAGAMENTO    NUMBER) RETURN VARCHAR2 IS
+                                    
+       V_VAL_CONTRIB         NUMBER(18,4)   DEFAULT 0.0000;
+       VAL_TETO_INSS         NUMBER(18,4)   DEFAULT 0.0000;
+       VAL_PER_TAXA_SER      NUMBER(18,4)   DEFAULT 14.0000;
+       V_FLG_ISENCAO_CONTRIB VARCHAR2(1)    DEFAULT 'N';
+                                    
+  BEGIN
+  
+      
+      SELECT VAL_PER_TAXA
+        INTO VAL_PER_TAXA_SER
+        FROM TB_TAXA TAX
+       WHERE TAX.COD_INS       = P_COD_INS
+         AND TAX.FLG_TIPO_TAXA = 'S'
+         AND ((P_PER_PROCESSO BETWEEN TAX.DAT_INI_VIGENCIA AND TAX.DAT_FIM_VIGENCIA) OR (P_PER_PROCESSO >= TAX.DAT_INI_VIGENCIA AND TAX.DAT_FIM_VIGENCIA IS NULL));  
+  
+      
+      SELECT VAL_ELEMENTO 
+        INTO VAL_TETO_INSS 
+        FROM TB_DET_PARAM_ESTRUTURA DP 
+       WHERE DP.COD_ELEMENTO  = 'VAL_TETOINSS' 
+         AND DP.COD_ESTRUTURA = 2000 
+         AND DP.COD_PARAM     = 'TETOPM' 
+         AND ((P_PER_PROCESSO BETWEEN DP.INI_VIG AND DP.FIM_VIG) OR (P_PER_PROCESSO >= DP.INI_VIG AND DP.FIM_VIG IS NULL));
+
+      
+      SELECT DECODE(COUNT(1), 0, 'N', 'S')
+        INTO V_FLG_ISENCAO_CONTRIB
+        FROM TB_ATRIBUTOS_PF      AP
+           , TB_RELACAO_FUNCIONAL RF
+       WHERE RF.COD_INS           = P_COD_INS
+         AND RF.COD_ENTIDADE      = P_COD_ENTIDADE
+         AND RF.COD_IDE_CLI       = P_COD_IDE_CLI
+         AND RF.NUM_MATRICULA     = P_NUM_MATRICULA
+         AND RF.COD_IDE_REL_FUNC  = P_COD_IDE_REL_FUNC
+         AND RF.COD_INS           = AP.COD_INS
+         AND RF.COD_IDE_CLI       = AP.COD_IDE_CLI
+         AND AP.COD_ATRIBUTO      IN (7000)
+         AND AP.FLG_STATUS        = 'V'
+         AND P_PER_PROCESSO BETWEEN AP.DAT_INI_VIG AND NVL(AP.DAT_FIM_VIG, TO_DATE('01/01/2020','DD/MM/YYYY'))
+         AND ((AP.DAT_INI_VIG    <= P_PER_PROCESSO
+         AND AP.DAT_FIM_VIG      >= P_PER_PROCESSO) OR (AP.DAT_INI_VIG <= P_PER_PROCESSO AND AP.DAT_FIM_VIG IS NULL));
+         
+         IF (V_FLG_ISENCAO_CONTRIB = 'S') THEN
+         
+              SELECT 0
+                INTO V_VAL_CONTRIB
+                FROM DUAL
+               WHERE V_FLG_ISENCAO_CONTRIB = 'S';
+         ELSE
+         
+              SELECT SUM(TB1.VAL_CONTRIBUICAO)
+                INTO V_VAL_CONTRIB
+               FROM  (
+
+
+
+                      SELECT SUM(VAL_RUBRICA) AS VAL_CONTRIBUICAO
+                        FROM TB_FOLHA_PAGAMENTO_DET DC
+                           , TB_FOLHA_PAGAMENTO     FO
+                           , TB_RELACAO_FUNCIONAL   RF
+                       WHERE V_FLG_ISENCAO_CONTRIB = 'N'
+                         AND DC.COD_INS          = FO.COD_INS
+                         AND DC.PER_PROCESSO     = FO.PER_PROCESSO
+                         AND DC.TIP_PROCESSO     = FO.TIP_PROCESSO
+                         AND DC.SEQ_PAGAMENTO    = FO.SEQ_PAGAMENTO
+                         
+                         AND DC.COD_IDE_CLI      = FO.COD_IDE_CLI
+                         AND DC.COD_ENTIDADE     = FO.COD_ENTIDADE
+                         AND DC.NUM_MATRICULA    = FO.NUM_MATRICULA
+                         AND DC.COD_IDE_REL_FUNC = FO.COD_IDE_REL_FUNC                        
+                         
+                         AND FO.COD_INS          = P_COD_INS
+                         AND FO.PER_PROCESSO     = P_PER_PROCESSO
+                         AND FO.TIP_PROCESSO     = P_TIP_PROCESSO
+                         AND FO.SEQ_PAGAMENTO    = P_SEQ_PAGAMENTO
+                         
+                         AND RF.COD_IDE_CLI      = P_COD_IDE_CLI
+                         AND RF.COD_ENTIDADE     = P_COD_ENTIDADE
+                         AND RF.NUM_MATRICULA    = P_NUM_MATRICULA
+                         AND RF.COD_IDE_REL_FUNC = P_COD_IDE_REL_FUNC
+                         
+                         AND RF.COD_IDE_CLI      = FO.COD_IDE_CLI
+                         AND RF.COD_ENTIDADE     = FO.COD_ENTIDADE
+                         AND RF.NUM_MATRICULA    = FO.NUM_MATRICULA
+                         AND RF.COD_IDE_REL_FUNC = FO.COD_IDE_REL_FUNC                             
+                         
+                         AND DC.COD_FCRUBRICA IN (95300,95400,52800)
+
+                         
+                         
+                         
+                     UNION 
+                        
+                        SELECT SUM(VAL_RUBRICA) AS VAL_CONTRIBUICAO
+                          FROM TB_FOLHA_PAGAMENTO_DET  DC
+                             , TB_FOLHA_PAGAMENTO      FO
+                             , TB_RELACAO_FUNCIONAL    RF
+                         WHERE DC.COD_INS          = FO.COD_INS
+                           AND DC.PER_PROCESSO     = FO.PER_PROCESSO
+                           AND DC.TIP_PROCESSO     = FO.TIP_PROCESSO
+                           AND DC.SEQ_PAGAMENTO    = FO.SEQ_PAGAMENTO
+                           
+                           AND DC.COD_IDE_CLI       = FO.COD_IDE_CLI
+                           AND DC.COD_ENTIDADE      = FO.COD_ENTIDADE
+                           AND DC.NUM_MATRICULA     = FO.NUM_MATRICULA
+                           AND DC.COD_IDE_REL_FUNC  = FO.COD_IDE_REL_FUNC
+                           
+                           AND RF.COD_INS           = FO.COD_INS
+                           AND RF.COD_IDE_CLI       = FO.COD_IDE_CLI
+                           AND RF.COD_ENTIDADE      = FO.COD_ENTIDADE
+                           AND RF.NUM_MATRICULA     = FO.NUM_MATRICULA
+                           AND RF.COD_IDE_REL_FUNC  = FO.COD_IDE_REL_FUNC
+                           
+                           AND FO.COD_INS           = P_COD_INS
+                           AND FO.PER_PROCESSO      = P_PER_PROCESSO
+                           AND FO.TIP_PROCESSO      = P_TIP_PROCESSO
+                           AND FO.SEQ_PAGAMENTO     = P_SEQ_PAGAMENTO
+                           AND RF.COD_IDE_CLI       = P_COD_IDE_CLI
+                           AND RF.COD_ENTIDADE      = P_COD_ENTIDADE
+                           AND RF.NUM_MATRICULA     = P_NUM_MATRICULA
+                           AND RF.COD_IDE_REL_FUNC  = P_COD_IDE_REL_FUNC
+                           
+
+                           AND DC.COD_FCRUBRICA   IN (95301,95401,52801)
+                 ) TB1;        
+         
+         END IF;
+           
+        RETURN NVL(V_VAL_CONTRIB, 0);
+
+  EXCEPTION 
+  WHEN OTHERS THEN
+      
+      RETURN NVL(V_VAL_CONTRIB, 0);
+  
+  END FNC_CALC_CONTRI
+--*********************************************************************************
+ CREATE OR REPLACE  FUNCTION FNC_CALC_IR
+                                    (P_COD_INS          NUMBER
+                                    ,P_COD_IDE_CLI      VARCHAR2
+                                    ,P_COD_ENTIDADE     VARCHAR2
+                                    ,P_NUM_MATRICULA    VARCHAR2
+                                    ,P_COD_IDE_REL_FUNC VARCHAR2                                    
+                                    ,P_PER_PROCESSO     DATE
+                                    ,P_TIP_PROCESSO     VARCHAR2
+                                    ,P_SEQ_PAGAMENTO    NUMBER) RETURN VARCHAR2 IS
+                                    
+       V_VAL_IR_PROP_BEN NUMBER(18,4) DEFAULT 0.0000;
+       VAL_DED_IR_DEP    NUMBER(18,4) DEFAULT 189.59;
+                                    
+  BEGIN
+  
+        
+      SELECT MIN(VAL_ELEMENTO)
+        INTO VAL_DED_IR_DEP 
+        FROM TB_DET_PARAM_ESTRUTURA DP 
+       WHERE DP.COD_ELEMENTO  = 'IMPDE' 
+         AND DP.COD_ESTRUTURA = 1000 
+         AND DP.COD_PARAM     = 'IMPDE' 
+         AND ((P_PER_PROCESSO BETWEEN DP.INI_VIG AND DP.FIM_VIG) OR (P_PER_PROCESSO >= DP.INI_VIG AND DP.FIM_VIG IS NULL));  
+  
+SELECT 
+
+       ROUND(IR * PROPORCAO_IR, 2) IR_NOVO_X_BENEFICIARIO
+  INTO V_VAL_IR_PROP_BEN       
+  FROM (
+         SELECT 
+                NVL(CASE
+
+                      WHEN ((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) >=                       
+                           2259.21 AND ((BASE_IR_BRUTA - VAL_CONTRIB * ISENCAO_IR) - DEPIR - MAIOR_65) <= 2826.65) THEN
+                       ROUND(((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) *
+                             0.075) - 169.44,
+                             2)
+                      WHEN ((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) >=
+                           2826.66 AND ((BASE_IR_BRUTA - VAL_CONTRIB * ISENCAO_IR) - DEPIR - MAIOR_65) <= 3751.05) THEN
+                       ROUND(((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) * 0.15) -
+                             381.44,
+                             2)
+                      WHEN ((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) >=
+                           3751.06 AND ((BASE_IR_BRUTA - VAL_CONTRIB * ISENCAO_IR) - DEPIR -
+                           MAIOR_65) <= 4664.68) THEN
+                       ROUND(((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) *
+                             0.225) - 662.77,
+                             2)
+                      WHEN ((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) >
+                           4664.68) THEN
+                       ROUND(((((BASE_IR_BRUTA - VAL_CONTRIB) * ISENCAO_IR) - DEPIR - MAIOR_65) *
+                             0.275) - 896.00,
+                             2)
+                    END,
+                    0) AS IR
+
+
+                ,TRUNC(IR_CALCULADO_FOLHA / IR_CALCULADO_FOLHA_TOTAL, 7) AS PROPORCAO_IR
+        
+          FROM (
+                 
+                  SELECT DET.COD_ENTIDADE,
+                         DET.NUM_MATRICULA,
+                         DET.COD_IDE_REL_FUNC,
+                         DET.COD_IDE_CLI,
+                         FIS.DAT_NASC,                         
+                         (SELECT SUM(CASE
+                                       WHEN DET21.FLG_NATUREZA = 'C' THEN
+                                        DET21.VAL_RUBRICA
+                                       ELSE
+                                        ABS(DET21.VAL_RUBRICA) * -1
+                                     END
+                                     )
+                            FROM TB_FOLHA_PAGAMENTO_DET DET21
+                               , TB_FOLHA_PAGAMENTO     FOL21
+                           WHERE DET21.COD_INS          = DET.COD_INS
+                             AND DET21.TIP_PROCESSO     = DET.TIP_PROCESSO
+                             AND DET21.PER_PROCESSO     = DET.PER_PROCESSO
+                             AND DET21.COD_IDE_CLI      = DET.COD_IDE_CLI
+                             
+                             AND FOL21.COD_INS          = DET21.COD_INS
+                             AND FOL21.TIP_PROCESSO     = DET21.TIP_PROCESSO
+                             AND FOL21.PER_PROCESSO     = DET21.PER_PROCESSO
+                             AND FOL21.SEQ_PAGAMENTO    = DET21.SEQ_PAGAMENTO
+
+                             AND FOL21.COD_IDE_CLI      = DET21.COD_IDE_CLI                             
+                             AND FOL21.COD_ENTIDADE     = DET21.COD_ENTIDADE
+                             AND FOL21.NUM_MATRICULA    = DET21.NUM_MATRICULA
+                             AND FOL21.COD_IDE_REL_FUNC = DET21.COD_IDE_REL_FUNC
+                             
+                             AND EXISTS
+                          
+                           (SELECT 1
+                                    FROM TB_RUBRICAS RUB
+                                   WHERE RUB.COD_INS            = FOL21.COD_INS
+                                     AND RUB.COD_ENTIDADE       = FOL21.COD_ENTIDADE
+                                     AND TRUNC(RUB.COD_RUBRICA) = DET21.COD_FCRUBRICA
+                                  
+                                     AND ((RUB.FLG_EXTRA_FOLHA    = 'S') OR (RUB.FLG_DED_IR = 'S'))
+                                     AND EXISTS (SELECT COD_RUBRICA 
+                                                   FROM TB_PROC_ESP_INCIDENCIA_RUB EIR
+                                                  WHERE EIR.COD_INS          = RUB.COD_INS 
+                                                    AND EIR.COD_TIPO_ARQUIVO = 26 
+                                                    AND EIR.FLG_INCIDENCIA   = 'S'
+                                                    AND EIR.COD_ENTIDADE     = RUB.COD_ENTIDADE
+                                                    AND EIR.COD_RUBRICA      = RUB.COD_RUBRICA)                                                    
+                            )
+                          
+                          ) BASE_IR_BRUTA,
+                         
+                         
+                         NVL((
+                             
+                             SELECT DISTINCT '0'
+                               FROM TB_ATRIBUTOS_PF PF
+                              WHERE PF.COD_INS      = DET.COD_INS
+                                AND PF.COD_ATRIBUTO IN (8000) 
+                                AND PF.COD_IDE_CLI  = DET.COD_IDE_CLI
+                                AND P_PER_PROCESSO BETWEEN PF.DAT_INI_VIG AND NVL(PF.DAT_FIM_VIG, TO_DATE('01/01/2020','DD/MM/YYYY'))
+                                AND PF.FLG_STATUS   = 'V'
+                                AND ROWNUM < 2    
+                             ),
+                             1) ISENCAO_IR,                         
+                         CASE
+                           WHEN TO_CHAR(ADD_MONTHS(FIS.DAT_NASC, 780), 'YYYYMM') <= 
+                                
+                                TO_CHAR(LAST_DAY(P_PER_PROCESSO),'YYYYMM')
+                           THEN
+                            0
+                           ELSE
+                            0
+                         END MAIOR_65,
+                        NVL((FIS.NUM_DEP_IR * VAL_DED_IR_DEP), 0) DEPIR,    
+                         CASE WHEN 
+                           ( 
+                          SELECT SUM(DET2.VAL_RUBRICA)
+                            FROM TB_FOLHA_PAGAMENTO_DET DET2
+                           WHERE DET2.COD_INS          = DET.COD_INS
+                             AND DET2.TIP_PROCESSO     = DET.TIP_PROCESSO
+                             AND DET2.PER_PROCESSO     = DET.PER_PROCESSO
+                             AND DET2.SEQ_PAGAMENTO    = DET.SEQ_PAGAMENTO                             
+                             AND DET2.COD_IDE_CLI      = DET.COD_IDE_CLI
+                             AND DET2.COD_ENTIDADE     = DET.COD_ENTIDADE
+                             AND DET2.NUM_MATRICULA    = DET.NUM_MATRICULA
+                             AND DET2.COD_IDE_REL_FUNC = DET.COD_IDE_REL_FUNC
+                             AND DET2.COD_FCRUBRICA IN (50200)) > 0
+                          THEN    
+                         ( 
+                          SELECT SUM(DET2.VAL_RUBRICA)
+                            FROM TB_FOLHA_PAGAMENTO_DET DET2
+                           WHERE DET2.COD_INS          = DET.COD_INS
+                             AND DET2.TIP_PROCESSO     = DET.TIP_PROCESSO
+                             AND DET2.PER_PROCESSO     = DET.PER_PROCESSO
+                             AND DET2.SEQ_PAGAMENTO    = DET.SEQ_PAGAMENTO                             
+                             AND DET2.COD_IDE_CLI      = DET.COD_IDE_CLI
+                             AND DET2.COD_ENTIDADE     = DET.COD_ENTIDADE
+                             AND DET2.NUM_MATRICULA    = DET.NUM_MATRICULA
+                             AND DET2.COD_IDE_REL_FUNC = DET.COD_IDE_REL_FUNC
+                             AND DET2.COD_FCRUBRICA IN (50200)) 
+                          ELSE 1 END IR_CALCULADO_FOLHA,
+                         
+                         CASE WHEN 
+                           ( 
+                          SELECT SUM(DET2.VAL_RUBRICA)
+                            FROM TB_FOLHA_PAGAMENTO_DET DET2
+                           WHERE DET2.COD_INS       = DET.COD_INS
+                             AND DET2.TIP_PROCESSO  = DET.TIP_PROCESSO
+                             AND DET2.PER_PROCESSO  = DET.PER_PROCESSO
+                             AND DET2.COD_IDE_CLI      = DET.COD_IDE_CLI
+                             
+                             AND DET2.COD_FCRUBRICA IN (50200)) > 0
+                             
+                         THEN
+                         ( 
+                          SELECT SUM(DET2.VAL_RUBRICA)
+                            FROM TB_FOLHA_PAGAMENTO_DET DET2
+                           WHERE DET2.COD_INS       = DET.COD_INS
+                             AND DET2.TIP_PROCESSO  = DET.TIP_PROCESSO
+                             AND DET2.PER_PROCESSO  = DET.PER_PROCESSO
+                             AND DET2.COD_IDE_CLI      = DET.COD_IDE_CLI
+                             
+                             AND DET2.COD_FCRUBRICA IN (50200)) 
+                         ELSE 1 END IR_CALCULADO_FOLHA_TOTAL
+                 
+                          , FNC_CALC_CONTRIB(DET.COD_INS, DET.COD_IDE_CLI, DET.COD_ENTIDADE, DET.NUM_MATRICULA, DET.COD_IDE_REL_FUNC, DET.PER_PROCESSO, DET.TIP_PROCESSO, DET.SEQ_PAGAMENTO) AS VAL_CONTRIB
+                
+                   FROM TB_FOLHA_PAGAMENTO     DET,
+                        TB_PESSOA_FISICA       FIS,
+                        TB_RELACAO_FUNCIONAL    RF
+                  WHERE DET.COD_INS         = P_COD_INS
+                    AND DET.TIP_PROCESSO    = P_TIP_PROCESSO
+                    AND DET.PER_PROCESSO    = P_PER_PROCESSO
+                    AND DET.SEQ_PAGAMENTO   = P_SEQ_PAGAMENTO
+                    
+                    AND RF.COD_IDE_CLI      = DET.COD_IDE_CLI
+                    AND RF.COD_ENTIDADE     = DET.COD_ENTIDADE
+                    AND RF.NUM_MATRICULA    = DET.NUM_MATRICULA
+                    AND RF.COD_IDE_REL_FUNC = DET.COD_IDE_REL_FUNC
+                    
+                    AND RF.COD_IDE_CLI      = P_COD_IDE_CLI
+                    AND RF.COD_ENTIDADE     = P_COD_ENTIDADE
+                    AND RF.NUM_MATRICULA    = P_NUM_MATRICULA
+                    AND RF.COD_IDE_REL_FUNC = P_COD_IDE_REL_FUNC
+                    
+                    AND FIS.COD_INS         = DET.COD_INS
+                    AND DET.COD_IDE_CLI     = FIS.COD_IDE_CLI     
+
+                                )
+        );
+               
+        RETURN V_VAL_IR_PROP_BEN;
+       
+  EXCEPTION 
+  WHEN OTHERS THEN
+      
+      RETURN V_VAL_IR_PROP_BEN;        
+  
+  END FNC_CALC_IR;
+--*****************************************************************************
+create or replace view VW_MARGEM_CONSIG
+   SELECT LPAD(RF.NUM_MATRICULA, 10, '0') NUM_MATRICULA
+        --  , '001'
+         -- , '003'
+          ,  LPAD(TRIM(TO_CHAR(((SUM(DECODE(DC.FLG_NATUREZA, 'C', DC.VAL_RUBRICA, 0)) - SUM(DECODE(DC.FLG_NATUREZA, 'D', DC.VAL_RUBRICA, 0)) - FNC_CALC_CONTRIB(DC.COD_INS, RF.COD_IDE_CLI, RF.COD_ENTIDADE, RF.NUM_MATRICULA, RF.COD_IDE_REL_FUNC, DC.PER_PROCESSO, DC.TIP_PROCESSO, DC.SEQ_PAGAMENTO) - FNC_CALC_IR(DC.COD_INS, RF.COD_IDE_CLI, RF.COD_ENTIDADE, RF.NUM_MATRICULA, RF.COD_IDE_REL_FUNC, DC.PER_PROCESSO, DC.TIP_PROCESSO, DC.SEQ_PAGAMENTO)) / 2), '99999D99')), 9, '0') VALOR         
+          ,  RPAD(PF.NOM_PESSOA_FISICA, 50, ' ')     NOM_PESSOA_FISICA
+          ,  LPAD(PF.NUM_CPF,       11,'0')          NUM_CPF
+          ,  LPAD(LTRIM(FO.COD_BANCO  ,'0'), 3, '0') COD_BANCO
+          ,  LPAD(LTRIM(FO.NUM_AGENCIA,'0'), 4, '0') NUM_AGENCIA
+          ,  LPAD(LTRIM(FO.NUM_CONTA,  '0'), 9, '0') NUM_CONTA
+          ,  LPAD(FO.NUM_DV_CONTA,  1, '0')          NUM_DV_CONTA
+          ,  LPAD(TO_CHAR(PF.DAT_NASC, 'DDMMRRRR'), 8, '0') NUM_DV_CONTA
+      FROM TB_FOLHA_PAGAMENTO       FO
+         , TB_FOLHA_PAGAMENTO_DET   DC
+         , TB_RELACAO_FUNCIONAL     RF
+         , TB_PESSOA_FISICA         PF
+     WHERE FO.COD_INS            = 1
+       AND FO.COD_INS            = RF.COD_INS
+       AND FO.COD_IDE_CLI        = RF.COD_IDE_CLI
+       AND FO.NUM_MATRICULA      = RF.NUM_MATRICULA
+       AND FO.COD_IDE_REL_FUNC   = RF.COD_IDE_REL_FUNC
+       AND FO.COD_INS            = DC.COD_INS
+       AND FO.COD_IDE_CLI        = DC.COD_IDE_CLI
+       AND FO.COD_ENTIDADE       = DC.COD_ENTIDADE
+       AND FO.NUM_MATRICULA      = DC.NUM_MATRICULA
+       AND FO.COD_IDE_REL_FUNC   = DC.COD_IDE_REL_FUNC
+       AND FO.PER_PROCESSO       = DC.PER_PROCESSO
+       AND FO.COD_IDE_CLI        = DC.COD_IDE_CLI
+       AND RF.COD_INS            = PF.COD_INS
+       AND RF.COD_IDE_CLI        = PF.COD_IDE_CLI
+       AND FO.TIP_PROCESSO       = DC.TIP_PROCESSO
+       AND FO.SEQ_PAGAMENTO      = DC.SEQ_PAGAMENTO
+       AND RF.COD_ENTIDADE       = 1
+       AND RF.COD_PROC_GRP_PAG   in (5,6)     
+
+       AND FO.PER_PROCESSO       = '01/01/2024'
+       
+       
+       
+       
+                               
+       AND DC.COD_FCRUBRICA IN (SELECT 0 FROM DUAL
+                                 UNION
+                                SELECT COD_RUBRICA 
+                                  FROM TB_PROC_ESP_INCIDENCIA_RUB 
+                                 WHERE COD_TIPO_ARQUIVO = 26
+                                   AND FLG_INCIDENCIA   = 'S')
+       AND DC.COD_FCRUBRICA NOT IN (SELECT 0 FROM DUAL
+                                    UNION
+                                    SELECT COD_RUBRICA
+                                      FROM TB_PROC_ESP_INCIDENCIA_RUB
+                                     WHERE COD_TIPO_ARQUIVO = 26
+                                      AND FLG_INCIDENCIA   = 'N')
+         -- CEDIDOS                                  
+       AND NOT EXISTS (
+          SELECT 1 
+            FROM FOLHA_PAR.TB_FOLHA_PAGAMENTO_DET DC2
+           WHERE DC2.COD_INS = DC.COD_INS 
+             AND DC2.COD_IDE_CLI      = DC.COD_IDE_CLI 
+             AND DC2.COD_ENTIDADE     = DC.COD_ENTIDADE 
+             AND DC2.NUM_MATRICULA    = DC.NUM_MATRICULA 
+             AND DC2.COD_IDE_REL_FUNC = DC.COD_IDE_REL_FUNC
+             AND DC2.PER_PROCESSO     = DC.PER_PROCESSO
+             AND DC2.NUM_MATRICULA    IN (379166,585440)
+                      )
+         -- FIM CEDIDOS   
+      
+      AND NOT EXISTS (
+          SELECT 1 
+            FROM TB_FOLHA_PAGAMENTO_DET DC2
+           WHERE DC2.COD_INS = DC.COD_INS 
+             AND DC2.COD_IDE_CLI      = DC.COD_IDE_CLI 
+             AND DC2.COD_ENTIDADE     = DC.COD_ENTIDADE 
+             AND DC2.NUM_MATRICULA    = DC.NUM_MATRICULA 
+             AND DC2.COD_IDE_REL_FUNC = DC.COD_IDE_REL_FUNC
+             AND DC2.PER_PROCESSO      = DC.PER_PROCESSO
+             
+             AND DC2.COD_FCRUBRICA IN (
+                 3400,3402,3401
+             )
+       )       
+     GROUP 
+        BY DC.COD_INS
+         , RF.COD_IDE_CLI
+         , RF.COD_ENTIDADE
+         , RF.NUM_MATRICULA
+         , RF.COD_IDE_REL_FUNC
+         , DC.PER_PROCESSO
+         , DC.TIP_PROCESSO
+         , DC.SEQ_PAGAMENTO         
+         , PF.NOM_PESSOA_FISICA
+         , PF.NUM_CPF
+         , FO.COD_BANCO
+         , FO.NUM_AGENCIA
+         , FO.NUM_CONTA
+         , FO.NUM_DV_CONTA
+         , PF.DAT_NASC
+         
+         union
+         
+         
+          SELECT * FROM (
+           SELECT DISTINCT LPAD(RF.NUM_MATRICULA, 10, '0') NUM_MATRICULA
+         -- , '001'
+         -- , '003'
+          , '000000,00'
+          ,  RPAD(PF.NOM_PESSOA_FISICA, 50, ' ') NOM_PESSOA_FISICA
+          ,  LPAD(PF.NUM_CPF,       11,'0') NUM_CPF
+          ,  LPAD(LTRIM(FO.COD_BANCO  ,'0'), 3, '0') COD_BANCO
+          ,  LPAD(LTRIM(FO.NUM_AGENCIA,'0'), 4, '0') NUM_AGENCIA
+          ,  LPAD(LTRIM(FO.NUM_CONTA,  '0'), 9, '0') NUM_CONTA
+          ,  LPAD(FO.NUM_DV_CONTA,  1, '0') NUM_DV_CONTA
+          ,  LPAD(TO_CHAR(PF.DAT_NASC, 'DDMMRRRR'), 8, '0') DAT_NASC
+      FROM TB_FOLHA_PAGAMENTO       FO
+         , TB_FOLHA_PAGAMENTO_DET   DC
+         , TB_RELACAO_FUNCIONAL     RF
+         , TB_PESSOA_FISICA         PF
+     WHERE FO.COD_INS            = 1
+       AND FO.COD_INS            = RF.COD_INS
+       AND FO.COD_IDE_CLI        = RF.COD_IDE_CLI
+       AND FO.NUM_MATRICULA      = RF.NUM_MATRICULA
+       AND FO.COD_IDE_REL_FUNC   = RF.COD_IDE_REL_FUNC
+       AND FO.COD_INS            = DC.COD_INS
+       AND FO.COD_IDE_CLI        = DC.COD_IDE_CLI
+       AND FO.COD_ENTIDADE       = DC.COD_ENTIDADE
+       AND FO.NUM_MATRICULA      = DC.NUM_MATRICULA
+       AND FO.COD_IDE_REL_FUNC   = DC.COD_IDE_REL_FUNC
+       AND FO.PER_PROCESSO       = DC.PER_PROCESSO
+       AND FO.COD_IDE_CLI        = DC.COD_IDE_CLI
+       AND RF.COD_INS            = PF.COD_INS
+       AND RF.COD_IDE_CLI        = PF.COD_IDE_CLI
+       AND FO.TIP_PROCESSO       = DC.TIP_PROCESSO
+       AND FO.SEQ_PAGAMENTO      = DC.SEQ_PAGAMENTO
+       AND RF.COD_ENTIDADE       = 1
+       AND RF.COD_PROC_GRP_PAG   in (5,6)
+       AND FO.PER_PROCESSO       = '01/01/2024'      
+        
+       AND NOT EXISTS (
+            SELECT 1
+              FROM TB_FOLHA_PAGAMENTO       FO1
+                 , TB_FOLHA_PAGAMENTO_DET   DC1
+                 , TB_RELACAO_FUNCIONAL     RF1
+                 , TB_PESSOA_FISICA         PF1
+             WHERE FO1.COD_INS            = 1
+               AND FO1.COD_INS            = RF1.COD_INS
+               AND FO1.COD_IDE_CLI        = RF1.COD_IDE_CLI
+               AND FO1.NUM_MATRICULA      = RF1.NUM_MATRICULA
+               AND FO1.COD_IDE_REL_FUNC   = RF1.COD_IDE_REL_FUNC
+               AND FO1.COD_INS            = DC1.COD_INS
+               AND FO1.COD_IDE_CLI        = DC1.COD_IDE_CLI
+               AND FO1.COD_ENTIDADE       = DC1.COD_ENTIDADE
+               AND FO1.NUM_MATRICULA      = DC1.NUM_MATRICULA
+               AND FO1.COD_IDE_REL_FUNC   = DC1.COD_IDE_REL_FUNC
+               AND FO1.PER_PROCESSO       = DC1.PER_PROCESSO
+               AND FO1.COD_IDE_CLI        = DC1.COD_IDE_CLI
+               AND RF1.COD_INS            = PF1.COD_INS
+               AND RF1.COD_IDE_CLI        = PF1.COD_IDE_CLI
+               AND FO1.TIP_PROCESSO       = DC1.TIP_PROCESSO
+               AND FO1.SEQ_PAGAMENTO      = DC1.SEQ_PAGAMENTO
+               AND RF1.COD_ENTIDADE       = 1
+               AND RF1.COD_PROC_GRP_PAG   in (5,6)       
+        
+               AND FO1.PER_PROCESSO       = '01/01/2024'
+               
+               AND FO1.COD_INS            = FO.COD_INS
+               AND FO1.COD_IDE_CLI        = FO.COD_IDE_CLI
+               AND FO1.NUM_MATRICULA      = FO.NUM_MATRICULA
+               AND FO1.COD_IDE_REL_FUNC   = FO.COD_IDE_REL_FUNC
+               AND FO1.PER_PROCESSO       = FO.PER_PROCESSO
+                                       
+               AND DC1.COD_FCRUBRICA IN (SELECT 0 FROM DUAL
+                                         UNION
+                                        SELECT COD_RUBRICA 
+                                          FROM TB_PROC_ESP_INCIDENCIA_RUB 
+                                         WHERE COD_TIPO_ARQUIVO = 26
+                                           AND FLG_INCIDENCIA   = 'S')
+               AND DC1.COD_FCRUBRICA NOT IN (SELECT 0 FROM DUAL
+                                            UNION
+                                            SELECT COD_RUBRICA
+                                              FROM TB_PROC_ESP_INCIDENCIA_RUB
+                                             WHERE COD_TIPO_ARQUIVO = 26
+                                              AND FLG_INCIDENCIA   = 'N')
+     -- CEDIDOS  
+       AND NOT EXISTS (
+          SELECT 1 
+            FROM FOLHA_PAR.TB_FOLHA_PAGAMENTO_DET DC2
+           WHERE DC2.COD_INS = DC.COD_INS 
+             AND DC2.COD_IDE_CLI      = DC.COD_IDE_CLI 
+             AND DC2.COD_ENTIDADE     = DC.COD_ENTIDADE 
+             AND DC2.NUM_MATRICULA    = DC.NUM_MATRICULA 
+             AND DC2.COD_IDE_REL_FUNC = DC.COD_IDE_REL_FUNC
+             AND DC2.PER_PROCESSO     = DC.PER_PROCESSO
+             AND DC2.NUM_MATRICULA    IN (379166,585440)
+                      )
+       -- FIM CEDIDOS   
+                                           
+               AND NOT EXISTS (
+                  SELECT 1 
+                    FROM TB_FOLHA_PAGAMENTO_DET DC2
+                   WHERE DC2.COD_INS          = DC1.COD_INS 
+                     AND DC2.COD_IDE_CLI      = DC1.COD_IDE_CLI 
+                     AND DC2.COD_ENTIDADE     = DC1.COD_ENTIDADE 
+                     AND DC2.NUM_MATRICULA    = DC1.NUM_MATRICULA 
+                     AND DC2.COD_IDE_REL_FUNC = DC1.COD_IDE_REL_FUNC
+                     AND DC2.PER_PROCESSO     = DC1.PER_PROCESSO
+                     AND DC2.COD_FCRUBRICA IN (
+                         3400,3402,3401
+                     )
+               )                                               
+       )       
+     GROUP 
+        BY DC.COD_INS
+         , RF.COD_IDE_CLI
+         , RF.COD_ENTIDADE
+         , RF.NUM_MATRICULA
+         , RF.COD_IDE_REL_FUNC
+         , DC.PER_PROCESSO
+         , DC.TIP_PROCESSO
+         , DC.SEQ_PAGAMENTO         
+         , PF.NOM_PESSOA_FISICA
+         , PF.NUM_CPF
+         , FO.COD_BANCO
+         , FO.NUM_AGENCIA
+         , FO.NUM_CONTA
+         , FO.NUM_DV_CONTA
+         , PF.DAT_NASC       
+         
+       )
+-------------------------------------------------------------
+CREATE OR REPLACE VIEW VW_FOLHA_BRUTA_ANUAL AS
+SELECT * FROM
+(
+SELECT DISTINCT
+      --regexp_replace(LPAD(P.NUM_CPF, 11),'([0-9]{3})([0-9]{3})([0-9]{3})','\1.\2.\3-')   AS CPF
+       P.NUM_CPF                                                                         AS CPF
+     , R.NUM_MATRICULA                                                                   AS MATRICULA
+     , P.NOM_PESSOA_FISICA                                                               AS SERVIDOR
+     , (SELECT CC.DES_DESCRICAO FROM TB_CODIGO CC WHERE CC.COD_NUM = 2139
+                                     AND CC.COD_PAR = R.COD_VINCULO)                     AS TIPO_VINCULO
+                                     
+     , CASE WHEN (SELECT SUM(DD.VAL_RUBRICA) FROM TB_HFOLHA_PAGAMENTO_DET DD
+                   WHERE DD.NUM_MATRICULA = F.NUM_MATRICULA       AND DD.TIP_PROCESSO  = F.TIP_PROCESSO
+                     AND DD.PER_PROCESSO  = F.PER_PROCESSO         AND DD.COD_IDE_CLI   = F.COD_IDE_CLI
+                     AND DD.COD_FCRUBRICA IN (2901,65600,65601,65602,65603,12101,12200,12201)) > 0
+
+            THEN CAST(nvl(((SELECT SUM(DD.VAL_RUBRICA) FROM TB_HFOLHA_PAGAMENTO_DET DD
+                   WHERE DD.NUM_MATRICULA = F.NUM_MATRICULA        AND DD.TIP_PROCESSO  = F.TIP_PROCESSO
+                     AND DD.PER_PROCESSO  = F.PER_PROCESSO         AND DD.COD_IDE_CLI   = F.COD_IDE_CLI
+                     AND DD.FLG_NATUREZA  = 'C') -
+
+                 (SELECT SUM(DD.VAL_RUBRICA) FROM TB_HFOLHA_PAGAMENTO_DET DD
+                   WHERE DD.NUM_MATRICULA = F.NUM_MATRICULA        AND DD.TIP_PROCESSO  = F.TIP_PROCESSO
+                     AND DD.PER_PROCESSO  = F.PER_PROCESSO         AND DD.COD_IDE_CLI   = F.COD_IDE_CLI
+                     AND DD.COD_FCRUBRICA IN (2901,65600,65601,65602,65603,12101,12200,12201))),0) AS NUMBER(8,2))
+
+            ELSE CAST(nvl(((SELECT SUM(DD.VAL_RUBRICA) FROM TB_HFOLHA_PAGAMENTO_DET DD
+                   WHERE DD.NUM_MATRICULA = F.NUM_MATRICULA        AND DD.TIP_PROCESSO  = F.TIP_PROCESSO
+                     AND DD.PER_PROCESSO  = F.PER_PROCESSO         AND DD.COD_IDE_CLI   = F.COD_IDE_CLI
+                     AND DD.FLG_NATUREZA  = 'C')),0)AS NUMBER(8,2))                     END VALOR
+    
+    , CASE WHEN f.TIP_PROCESSO = 'T' THEN '13' ELSE
+      TO_CHAR(f.PER_PROCESSO,'MM') END MES_REF,
+      TO_CHAR(f.PER_PROCESSO,'YYYY')AS ANO_REF
+
+
+FROM TB_HFOLHA_PAGAMENTO F INNER JOIN TB_PESSOA_FISICA       P ON F.COD_IDE_CLI        = P.COD_IDE_CLI
+                           INNER JOIN TB_SERVIDOR            S ON P.COD_IDE_CLI        = S.COD_IDE_CLI
+                           INNER JOIN TB_RELACAO_FUNCIONAL   R ON R.COD_IDE_CLI        = F.COD_IDE_CLI
+
+WHERE  
+--F.PER_PROCESSO >= '01/01/2023' and F.PER_PROCESSO < '01/01/2024'
+--and 
+F.TIP_PROCESSO in ('N','T')
+)
+
+pivot ( sum (VALOR) for (MES_REF )  IN (
+'01' as "JAN",
+'02' as "FEV",
+'03' as "MAR",
+'04' as "ABR",
+'05' as "MAI",
+'06' as "JUN",
+'07' as "JUL",
+'08' as "AGO",
+'09' as "SETEM",
+'10' as "OUT",
+'11' as "NOV",
+'12' as "DEZ",
+'13' as "DEZ13"
+
+))b;                   
 
