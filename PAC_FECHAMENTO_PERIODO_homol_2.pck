@@ -447,7 +447,8 @@ CREATE OR REPLACE PACKAGE BODY "PAC_FECHAMENTO_PERIODO" IS
             AND   H.NUM_GRP       = REG.NUM_GRP; 
             
             
-/*      FOR ANI IN ( -- aniversário
+/*   
+   FOR ANI IN ( -- aniversário
           SELECT DISTINCT  C1.DESC_MENSAGEM,P.COD_IDE_CLI,H.PER_PROCESSO
           FROM TB_MENSAGEM_CTR C1,TB_HFOLHA_PAGAMENTO H,
           TB_PESSOA_FISICA  P
@@ -470,7 +471,7 @@ CREATE OR REPLACE PACKAGE BODY "PAC_FECHAMENTO_PERIODO" IS
              WHERE H.COD_IDE_CLI =  ANI.COD_IDE_CLI
              AND   H.PER_PROCESSO = H.PER_PROCESSO;
                  
-         END LOOP; */   
+         END LOOP;  */  
             
    /*   UPDATE TB_HFOLHA_PAGAMENTO H -- Aniversariante 
       SET H.DESC_MENSAGEM =  

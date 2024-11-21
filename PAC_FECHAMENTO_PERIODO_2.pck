@@ -328,180 +328,134 @@ CREATE OR REPLACE PACKAGE BODY "PAC_FECHAMENTO_PERIODO" IS
                      AND FO.COD_IDE_CLI      = FD.COD_IDE_CLI
                      AND FO.COD_ENTIDADE     = FD.COD_ENTIDADE
                      AND FO.NUM_MATRICULA    = FD.NUM_MATRICULA
-                     AND FO.COD_IDE_REL_FUNC = FD.COD_IDE_REL_FUNC
+                     AND FO.COD_IDE_REL_FUNC = FD.COD_IDE_REL_FUNC                 
                     ;
-                    
-                  UPDATE TB_HFOLHA_PAGAMENTO H
-              --      SET H.DES_OBS_PAG = ticket 92894 - 24/09/2024 - Req.Rose
-                    SET H.DESC_MENSAGEM =
-                    (SELECT  DESC_MENSAGEM
-                         FROM   (                                        
-                         SELECT  TB1.DESC_MENSAGEM
-                          FROM 
-                            (SELECT  C1.DESC_MENSAGEM
-                                   FROM TB_MENSAGEM_CTR  C1                                   
-                                  WHERE H.COD_INS          = H.COD_INS
-                                    AND C1.TIP_FOLHA        = H.TIP_PROCESSO
-                                    AND NAT_MENSAGEM     = 'I'                                                    
-                                    AND C1.COD_FUNCAO    =  2
-                                    AND C1.NUM_PRIORIDADE = 2
-                                    AND C1.COD_GRUPO_PAG = H.NUM_GRP
-                                    AND C1.FLG_STATUS    = 'V'
-                                    AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-                       ORDER
-                          BY C1.NUM_PRIORIDADE) TB1 
-                       UNION 
-                       SELECT  TB1.DESC_MENSAGEM  -- mensagem Geral
-                       FROM          
-                       (SELECT  C1.DESC_MENSAGEM
-                                   FROM TB_MENSAGEM_CTR  C1                                  
-                                  WHERE H.COD_INS        = H.COD_INS
-                                    AND C1.TIP_FOLHA     = H.TIP_PROCESSO
-                                    AND NAT_MENSAGEM     = 'G'                                                    
-                                    AND C1.COD_FUNCAO    =  2
-                                    AND C1.NUM_PRIORIDADE = 2
-                                    AND C1.COD_GRUPO_PAG = H.NUM_GRP
-                                    AND C1.FLG_STATUS    = 'V'
-                                    AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-                       ORDER
-                         BY C1.NUM_PRIORIDADE
-                          ) TB1
-                       UNION
-                            SELECT  TB1.DESC_MENSAGEM  -- mensagem 
-                            FROM 
-                            (SELECT  C1.DESC_MENSAGEM
-                                   FROM TB_MENSAGEM_CTR  C1                                   
-                                  WHERE H.COD_INS        = H.COD_INS
-                                    AND TIP_FOLHA        = H.TIP_PROCESSO
-                                    AND NAT_MENSAGEM     = 'G'                                                    
-                                    AND C1.COD_FUNCAO    =  2
-                                    AND C1.NUM_PRIORIDADE = 1
-                                    AND C1.COD_GRUPO_PAG = H.NUM_GRP
-                                    AND C1.FLG_STATUS    = 'V'
-                                    AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-                       ORDER
-                          BY C1.NUM_PRIORIDADE) TB1
-                        UNION
-                         SELECT  TB1.DESC_MENSAGEM  -- Aniversariante 
-                         FROM  
-                         (SELECT  C1.DESC_MENSAGEM
-                                   FROM TB_MENSAGEM_CTR  C1                                
-                                  WHERE H.COD_INS        = H.COD_INS
-                                    AND TIP_FOLHA        = H.TIP_PROCESSO
-                                    AND NAT_MENSAGEM     = 'G'                                                    
-                                    AND C1.COD_FUNCAO    =  1
-                                    AND C1.NUM_PRIORIDADE = 2
-                                    AND C1.COD_GRUPO_PAG = H.NUM_GRP
-                                    AND C1.FLG_STATUS    = 'V'
-                                    AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-                       ORDER
-                          BY C1.NUM_PRIORIDADE) TB1   
-                       UNION
-                       SELECT  TB1.DESC_MENSAGEM
-                       FROM 
-                       (SELECT  C1.DESC_MENSAGEM
-                                   FROM TB_MENSAGEM_CTR  C1                                      
-                                  WHERE H.COD_INS          = H.COD_INS
-                                    AND TIP_FOLHA          = H.TIP_PROCESSO
-                                    AND NAT_MENSAGEM       = 'G'                                                    
-                                    AND C1.COD_FUNCAO      =  2
-                                    AND C1.NUM_PRIORIDADE  =  1
-                                    AND C1.COD_GRUPO_PAG = H.NUM_GRP
-                                    AND C1.FLG_STATUS    = 'V'
-                                    AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-                       ORDER
-                          BY C1.NUM_PRIORIDADE) TB1                                                                            
-                                    
-                        )) 
-                    WHERE H.COD_INS       = P_COD_INS
-                    AND   H.TIP_PROCESSO  = P_TIP_PROCESSO
-                    AND   H.PER_PROCESSO  = P_PER_PROCESSO
-                    AND   H.NUM_GRP       = REG.NUM_GRP;
-                    
-                    
-                    
-      UPDATE TB_HFOLHA_PAGAMENTO H -- Mensagem Indivudual
-             SET H.DESC_MENSAGEM =  
-      (
-       SELECT  TB1.DESC_MENSAGEM
-       FROM (SELECT C1.DESC_MENSAGEM
-          FROM TB_MENSAGEM_CTR C1
-          JOIN TB_MENSAGEM_BENEFICIARIOS M ON M.DAT_INI_VIGENCIA = C1.DAT_INI_VIG  
-          AND M.DAT_FIM_VIGENCIA = C1.DAT_FIM_VIG 
-          WHERE C1.COD_INS = H.COD_INS
-            AND C1.TIP_FOLHA = H.TIP_PROCESSO
-            AND C1.NAT_MENSAGEM = 'I'
-            AND C1.COD_FUNCAO = 2
-             AND C1.NUM_PRIORIDADE  = 2
-            AND C1.COD_GRUPO_PAG = H.NUM_GRP
-            AND C1.FLG_STATUS = 'V'
-            AND C1.NUM_MENSAGEM = M.NUM_MENSAGEM
-            AND M.COD_IDE_CLI = H.COD_IDE_CLI
-            AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-          ORDER BY C1.NUM_PRIORIDADE  
-          ) TB1
-     )
-        WHERE H.COD_INS       = P_COD_INS
-            AND   H.TIP_PROCESSO  = P_TIP_PROCESSO
-            AND   H.PER_PROCESSO  = P_PER_PROCESSO
-            AND   H.NUM_GRP       = REG.NUM_GRP; 
-            
-            
-/*      FOR ANI IN ( -- aniversário
-          SELECT DISTINCT  C1.DESC_MENSAGEM,P.COD_IDE_CLI,H.PER_PROCESSO
+-------------------------------------------------Aniversario------------------------------------
+    FOR ANI IN ( -- aniversário
+         SELECT DISTINCT  C1.DESC_MENSAGEM,H.COD_INS,
+         C1.COD_GRUPO_PAG,H.COD_IDE_CLI,H.PER_PROCESSO, H.TIP_PROCESSO,
+         C1.DAT_INI_VIG,C1.DAT_FIM_VIG -- ANIVERSARIO
           FROM TB_MENSAGEM_CTR C1,TB_HFOLHA_PAGAMENTO H,
           TB_PESSOA_FISICA  P
-                 
           WHERE C1.COD_INS = H.COD_INS
             AND C1.TIP_FOLHA = H.TIP_PROCESSO
-            AND NAT_MENSAGEM     = 'G'                                                    
+            AND NAT_MENSAGEM     = 'G'
             AND C1.COD_FUNCAO    =  1
             AND C1.NUM_PRIORIDADE = 2
             AND C1.FLG_STATUS = 'V'
-            AND P.DAT_NASC     BETWEEN     C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
+            AND TO_CHAR(P.DAT_NASC,'MM')  = TO_CHAR(PER_PROCESSO,'MM')
             AND H.PER_PROCESSO BETWEEN     C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-          ORDER BY C1.NUM_PRIORIDADE  
+            AND P.COD_IDE_CLI  = H.COD_IDE_CLI
+            AND H.COD_INS      = P_COD_INS
+            AND H.TIP_PROCESSO = P_TIP_PROCESSO
+            AND H.PER_PROCESSO = P_PER_PROCESSO
+            AND C1.COD_GRUPO_PAG   = REG.NUM_GRP           
+            ORDER BY C1.NUM_PRIORIDADE
+
           )LOOP
-          
-          
-                             
+
          UPDATE TB_HFOLHA_PAGAMENTO H -- Aniversariante
              SET   H.DESC_MENSAGEM =  ANI.DESC_MENSAGEM
-             WHERE H.COD_IDE_CLI =  ANI.COD_IDE_CLI
-             AND   H.PER_PROCESSO = H.PER_PROCESSO;
-                 
-         END LOOP; */   
-            
-   /*   UPDATE TB_HFOLHA_PAGAMENTO H -- Aniversariante 
-      SET H.DESC_MENSAGEM =  
-      (
-       SELECT  TB1.DESC_MENSAGEM
-       FROM (SELECT C1.DESC_MENSAGEM
-          FROM TB_MENSAGEM_CTR C1
-          JOIN TB_MENSAGEM_BENEFICIARIOS M ON M.DAT_INI_VIGENCIA = C1.DAT_INI_VIG  
-          JOIN TB_PESSOA_FISICA          P ON TO_CHAR(P.DAT_NASC,'MM') = TO_CHAR(SYSDATE,'MM')             
-          AND M.DAT_FIM_VIGENCIA = C1.DAT_FIM_VIG 
+             WHERE H.COD_IDE_CLI =    ANI.COD_IDE_CLI
+             AND   H.PER_PROCESSO =   ANI.PER_PROCESSO
+             AND   H.TIP_PROCESSO  =  ANI.TIP_PROCESSO
+             AND   H.NUM_GRP       =  ANI.COD_GRUPO_PAG
+             AND   H.COD_INS      =   ANI.COD_INS;
+
+         END LOOP;                  
+                    
+                    
+ -------------------------------------------------GeraL Prioridade------------------------------------
+  FOR GERI IN  (
+           SELECT DISTINCT  C1.DESC_MENSAGEM,H.COD_IDE_CLI,H.TIP_PROCESSO, 
+           C1.COD_GRUPO_PAG,H.COD_INS,H.PER_PROCESSO,C1.DAT_INI_VIG,C1.DAT_FIM_VIG -- INDIVIDUAL
+           FROM TB_MENSAGEM_CTR C1,
+                TB_HFOLHA_PAGAMENTO H
+           WHERE C1.COD_INS      =  H.COD_INS
+            AND C1.TIP_FOLHA     =  H.TIP_PROCESSO
+            AND NAT_MENSAGEM     = 'G'
+            AND C1.COD_FUNCAO    =  2
+            AND C1.NUM_PRIORIDADE = 1
+            AND C1.FLG_STATUS     = 'V'
+            AND H.PER_PROCESSO    BETWEEN     C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
+            AND H.COD_INS      = P_COD_INS
+            AND H.TIP_PROCESSO = P_TIP_PROCESSO
+            AND H.PER_PROCESSO = P_PER_PROCESSO
+            AND C1.COD_GRUPO_PAG      = REG.NUM_GRP
+            ORDER BY C1.NUM_PRIORIDADE
+          ) LOOP
+          
+             UPDATE TB_HFOLHA_PAGAMENTO H 
+             SET   H.DESC_MENSAGEM =  GERI.DESC_MENSAGEM
+             WHERE H.PER_PROCESSO =   GERI.PER_PROCESSO
+             AND   H.COD_INS      =   GERI.COD_INS
+             AND   H.TIP_PROCESSO  =  GERI.TIP_PROCESSO
+             AND   H.NUM_GRP       =  GERI.COD_GRUPO_PAG;  
+         END LOOP;
+                   
+                    
+ -------------------------------------------------Geral------------------------------------  
+  FOR GER IN  (
+           SELECT DISTINCT  C1.DESC_MENSAGEM,H.COD_IDE_CLI,H.TIP_PROCESSO, 
+           C1.COD_GRUPO_PAG,H.COD_INS,H.PER_PROCESSO,C1.DAT_INI_VIG,C1.DAT_FIM_VIG -- INDIVIDUAL
+           FROM TB_MENSAGEM_CTR C1,
+                TB_HFOLHA_PAGAMENTO H
+           WHERE C1.COD_INS      =  H.COD_INS
+            AND C1.TIP_FOLHA     = H.TIP_PROCESSO
+            AND NAT_MENSAGEM     = 'G'
+            AND C1.COD_FUNCAO    =  2
+            AND C1.NUM_PRIORIDADE = 2
+            AND C1.FLG_STATUS     = 'V'
+            AND H.PER_PROCESSO    BETWEEN     C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
+            AND H.COD_INS      = P_COD_INS
+            AND H.TIP_PROCESSO = P_TIP_PROCESSO
+            AND H.PER_PROCESSO = P_PER_PROCESSO
+            AND C1.COD_GRUPO_PAG  = REG.NUM_GRP
+            ORDER BY C1.NUM_PRIORIDADE
+          ) LOOP
+          
+             UPDATE TB_HFOLHA_PAGAMENTO H 
+             SET   H.DESC_MENSAGEM =  GER.DESC_MENSAGEM
+             WHERE H.PER_PROCESSO =   GER.PER_PROCESSO
+             AND   H.COD_INS      =   GER.COD_INS
+             AND   H.TIP_PROCESSO  =  GER.TIP_PROCESSO
+             AND   H.NUM_GRP       =  GER.COD_GRUPO_PAG;  
+         END LOOP;
+ 
+
+         
+---------------------------------------------INDIVIDUAL ----------------------------
+  FOR IND IN  (
+           SELECT DISTINCT  C1.DESC_MENSAGEM,H.COD_INS,H.TIP_PROCESSO,C1.COD_GRUPO_PAG,M.COD_IDE_CLI,H.PER_PROCESSO,C1.DAT_INI_VIG,C1.DAT_FIM_VIG -- INDIVIDUAL
+           FROM TB_MENSAGEM_CTR C1,
+                TB_HFOLHA_PAGAMENTO H,
+                TB_MENSAGEM_BENEFICIARIOS M
           WHERE C1.COD_INS = H.COD_INS
             AND C1.TIP_FOLHA = H.TIP_PROCESSO
-            AND NAT_MENSAGEM     = 'G'                                                    
-            AND C1.COD_FUNCAO    =  1
+            AND NAT_MENSAGEM     = 'I'
+            AND C1.COD_FUNCAO    =  2
             AND C1.NUM_PRIORIDADE = 2
             AND C1.FLG_STATUS = 'V'
-            AND C1.NUM_MENSAGEM = M.NUM_MENSAGEM
-            AND M.COD_IDE_CLI = H.COD_IDE_CLI
-            AND H.PER_PROCESSO BETWEEN C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
-          ORDER BY C1.NUM_PRIORIDADE  
-          ) TB1
-     )
-        WHERE H.COD_INS       = P_COD_INS
-            AND   H.TIP_PROCESSO  = P_TIP_PROCESSO
-            AND   H.PER_PROCESSO  = P_PER_PROCESSO
-            AND   H.NUM_GRP       = REG.NUM_GRP; */
-            
-            
-            
-            
-                                
+            AND H.PER_PROCESSO BETWEEN     C1.DAT_INI_VIG AND C1.DAT_FIM_VIG
+            AND M.DAT_INI_VIGENCIA >= C1.DAT_INI_VIG   AND M.DAT_FIM_VIGENCIA <= C1.DAT_FIM_VIG
+            AND H.COD_INS      = P_COD_INS
+            AND H.TIP_PROCESSO = P_TIP_PROCESSO
+            AND H.PER_PROCESSO = P_PER_PROCESSO
+        --    AND C1.COD_GRUPO_PAG      = REG.NUM_GRP
+            ORDER BY C1.NUM_PRIORIDADE
+          ) LOOP
+          
+              UPDATE TB_HFOLHA_PAGAMENTO H -- INDIVIDUAL
+             SET   H.DESC_MENSAGEM =  IND.DESC_MENSAGEM
+             WHERE H.COD_IDE_CLI =    IND.COD_IDE_CLI
+             AND   H.PER_PROCESSO =   IND.PER_PROCESSO
+             AND   H.TIP_PROCESSO  =  IND.TIP_PROCESSO
+         --    AND   H.NUM_GRP       =  IND.COD_GRUPO_PAG
+             AND   H.COD_INS      =   IND.COD_INS;
+
+          END LOOP;
+    
+ -------------------------- Antigo -------------------------------------------------                               
      
 /*                UPDATE TB_HFOLHA_PAGAMENTO H
               --      SET H.DES_OBS_PAG = ticket 92894 - 24/09/2024 - Req.Rose
